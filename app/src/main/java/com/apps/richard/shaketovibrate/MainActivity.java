@@ -66,7 +66,10 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     /*
-     * Used by SensorEventListener
+     * Detects if the sensor event is from the accelerometer and will vibrate the device when
+     * the user shakes it vigorously. Required to implement SensorEventListener
+     *
+     * @param event The event sent by the device's sensor
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -104,7 +107,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     /*
-     * Used by SensorEventListener
+     * Required to implement SensorEventListener
      */
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

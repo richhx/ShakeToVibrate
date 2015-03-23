@@ -9,24 +9,34 @@ import android.widget.TextView;
 
 public class DisplayMessageActivity extends ActionBarActivity {
 
+    /*
+     * Gets the message in the EditText edit_message and displays it in this activity
+     * TO DO: Save the message into a file and allow the user to reopen the message in
+     *        a saved state
+     *
+     * @param savedInstanceState The previous state of the application
+     * @return void
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
 
-        String message;     // message of intent
+        String message;     // message of display
+        // Gets the intent if bundle is null
         if(savedInstanceState == null) {
             Bundle bundle = getIntent().getExtras();
-            if(bundle == null) {
+            if(bundle == null)
                 message = null;
-            }
-            else {
+            else
                 message = bundle.getString(MainActivity.EXTRA_MESSAGE);
-            }
         }
+        // otherwise use the savedInstanceState
         else {
             message = (String)savedInstanceState.getSerializable(MainActivity.EXTRA_MESSAGE);
         }
+
+        // Display the message on the text view (not editable)
         TextView text = (TextView) findViewById(R.id.text_message);
         text.setText(message, TextView.BufferType.NORMAL);
     }
