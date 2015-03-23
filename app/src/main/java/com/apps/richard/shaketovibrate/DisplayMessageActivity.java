@@ -14,7 +14,8 @@ public class DisplayMessageActivity extends ActionBarActivity {
      * TO DO: Save the message into a file and allow the user to reopen the message in
      *        a saved state
      *
-     * @param savedInstanceState The previous state of the application
+     * @param savedInstanceState The previous state of the application (can be restored by
+     *                           overriding onRestoreInstanceState())
      * @return void
      */
     @Override

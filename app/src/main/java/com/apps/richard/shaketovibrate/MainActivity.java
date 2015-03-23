@@ -16,16 +16,20 @@ import android.view.View;
 import android.widget.EditText;
 
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
+
+    // Used to obtain the message in edit_message
     public static final String EXTRA_MESSAGE = "com.richard.apps.shaketovibrate.MESSAGE";
 
-    /* Instance variables */
+    // Device instance variables
     private SensorManager senSensorManager;
     private Sensor senAccelerometer;
     private Vibrator vibrator;
 
+    // Stored data values
     private long lastUpdate = 0;
     private float last_x, last_y, last_z;
 
+    // Constants
     private static final int SHAKE_THRESHOLD = 1000;
     private static final int UPDATE_INTERVAL = 100;
     private static final int VIBRATE_INTERVAL = 400;
@@ -35,7 +39,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initiate system services
+        // Initiate system devices and services
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -117,7 +121,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
      * Handles what occurs when paused
      */
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();    // always call superclass method first
 
         // Release activities in use
@@ -128,7 +132,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
      * Handles what occurs when resumed
      */
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();   // always call superclass method first
 
         // Resume activities to be used
@@ -136,8 +140,16 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /*
+     * Handles what occurs when stopped
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     /* Called when the user clicks the Send button */
-    public void sendMessage(View view) {
+    private void sendMessage(View view) {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
