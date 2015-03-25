@@ -61,8 +61,10 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        // Settings button
         if (id == R.id.action_settings) {
+            System.out.println("Settings pressed");
+            openSettings();
             return true;
         }
 
@@ -95,7 +97,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
                 // Vibrate if reached threshold
                 if(speed > SHAKE_THRESHOLD) {
-                    System.out.println("ENTER 4");
                     vibrator.vibrate(VIBRATE_INTERVAL);
                 }
 
@@ -111,12 +112,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     /*
-     * Required to implement SensorEventListener
+     * Required to implement SensorEventListener. Unused
      */
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    }
     /*
      * Handles what occurs when paused
      */
@@ -149,11 +149,16 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     /* Called when the user clicks the Send button */
-    private void sendMessage(View view) {
+    public void sendMessage(View view) {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+    }
+
+    public void openSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 }

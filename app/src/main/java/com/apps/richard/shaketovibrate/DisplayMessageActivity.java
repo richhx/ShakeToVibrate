@@ -24,6 +24,7 @@ public class DisplayMessageActivity extends ActionBarActivity {
         setContentView(R.layout.activity_display_message);
 
         String message;     // message of display
+
         // Gets the intent if bundle is null
         if(savedInstanceState == null) {
             Bundle bundle = getIntent().getExtras();

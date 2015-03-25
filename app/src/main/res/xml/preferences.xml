@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="check_setting"
+        android:title="@string/check_setting"
+        android:defaultValue="true" />
+
+    <ListPreference
+        android:key="list_setting"
+        android:entries="@array/frequency"
+        android:entryValues="@array/frequencyValues"
+        android:title="@string/list_setting" />
+
+    <EditTextPreference
+        android:key="edit_text_setting"
+        android:title="@string/edit_text_setting"
+        android:summary="@string/edit_text_setting_summary"/>
+
+</PreferenceScreen>

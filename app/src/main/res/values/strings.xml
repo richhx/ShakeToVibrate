@@ -1,9 +1,19 @@
 <resources>
+    <!-- App Name -->
     <string name="app_name">ShakeToVibrate</string>
 
-    <string name="hello_world">Hello world!</string>
+    <!-- Layout items -->
     <string name="action_settings">Settings</string>
-    <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
-    <string name="title_activity_display_message">DisplayMessageActivity</string>
+    <string name="edit_message">Enter a message</string>
+    <string name="title_activity_display_message">Message Display</string>
+    <string name="prompt_message">Message will be displayed when "Send" pressed</string>
+
+    <!-- Settings -->
+    <string name="check_setting">Check Box Setting</string>
+    <string name="check_setting_summary">On or Off</string>
+    <string name="list_setting">List Setting</string>
+    <string name="list_setting_summary">Choose a frequency</string>
+    <string name="edit_text_setting">Edit Text Setting</string>
+    <string name="edit_text_setting_summary">Enter a name or phrase</string>
 </resources>
