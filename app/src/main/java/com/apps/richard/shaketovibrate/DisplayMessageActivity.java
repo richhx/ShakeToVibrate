@@ -1,3 +1,14 @@
+/*****************************************************************************
+
+ Richard Huang
+ March 27, 2015
+ DisplayMessageActivity.java
+
+ Description: This activity displays the message sent by another activity
+              through an intent (MainActivity). The message displayed
+              is from the edit_message box.
+ ****************************************************************************/
+
 package com.apps.richard.shaketovibrate;
 
 import android.support.v7.app.ActionBarActivity;
@@ -6,13 +17,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-
+/*
+ * Name: DisplayMessageActivity (class)
+ * Description: Displays the message sent to this activity
+ */
 public class DisplayMessageActivity extends ActionBarActivity {
 
     /*
      * Gets the message in the EditText edit_message and displays it in this activity
-     * TO DO: Save the message into a file and allow the user to reopen the message in
-     *        a saved state
      *
      * @param savedInstanceState The previous state of the application (can be restored by
      *                           overriding onRestoreInstanceState())
@@ -31,11 +43,11 @@ public class DisplayMessageActivity extends ActionBarActivity {
             if(bundle == null)
                 message = null;
             else
-                message = bundle.getString(MainActivity.EXTRA_MESSAGE);
+                message = bundle.getString(MainActivity.EDIT_MESSAGE);
         }
         // otherwise use the savedInstanceState
         else {
-            message = (String)savedInstanceState.getSerializable(MainActivity.EXTRA_MESSAGE);
+            message = (String)savedInstanceState.getSerializable(MainActivity.EDIT_MESSAGE);
         }
 
         // Display the message on the text view (not editable)

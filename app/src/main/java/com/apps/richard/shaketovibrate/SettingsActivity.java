@@ -1,3 +1,17 @@
+/*****************************************************************************
+
+ Richard Huang
+ March 27, 2015
+ SettingsActivity.java
+
+ Description: This activity displays the settings that the user can modify.
+              At the moment, three generic settings can be modified:
+              A checkbox, a list, and an editable text. These settings can
+              be modified in the preferences.xml located in the xml folder.
+
+ ****************************************************************************/
+
+
 package com.apps.richard.shaketovibrate;
 
 import android.app.Activity;
@@ -5,8 +19,8 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
 /**
- * Created by Richard on 3/24/2015.
- * Used to instantiate a basic settings activity
+ * Name: SettingsActivity (class)
+ * Description: Instantiates a basic settings activity that the user can modify
  */
 public class SettingsActivity extends Activity {
 
@@ -20,6 +34,11 @@ public class SettingsActivity extends Activity {
                 .commit();
     }
 
+    /*
+     * Inner class that uses a PreferenceFragment to instantiate the
+     * settings to display to the user. The settings are loaded by the
+     * fragment from preferences.xml in the res/values/xml folder.
+     */
     public static class SettingsFragment extends PreferenceFragment {
 
         @Override
