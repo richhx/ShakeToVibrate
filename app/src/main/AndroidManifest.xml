@@ -2,34 +2,37 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.apps.richard.shaketovibrate" >
 
+    <!-- Max and Min SDK Versions -->
     <uses-sdk
         android:maxSdkVersion="21"
         android:minSdkVersion="16" />
 
-    <uses-permission android:name="android.permission.VIBRATE" />
-
-    <android:uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18" />
+    <!-- Permissions -->
+    <android:uses-permission android:name="android.permission.VIBRATE" />
+    <android:uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <android:uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <android:uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18" />
+    <android:uses-permission android:name="android.permission.CAMERA" />
 
+    <android:uses-feature android:name="android.hardware.camera"
+                          android:required="true" />
+
+    <!-- Application and Activities -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".DisplayMessageActivity"
             android:label="@string/title_activity_display_message"
@@ -38,6 +41,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.apps.richard.shaketovibrate.MainActivity" />
         </activity>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -46,6 +50,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.apps.richard.shaketovibrate.MainActivity" />
         </activity>
+
     </application>
 
 </manifest>

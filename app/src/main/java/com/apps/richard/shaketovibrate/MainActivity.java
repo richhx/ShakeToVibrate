@@ -15,24 +15,37 @@ package com.apps.richard.shaketovibrate;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /*
  * Name: MainActivity (class)
@@ -40,8 +53,9 @@ import java.io.OutputStreamWriter;
  */
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
 
-    // Key value to obtain the message in edit_message
-    public static final String EDIT_MESSAGE = "com.richard.apps.shaketovibrate.MESSAGE";
+    // Key values
+    public static final String EXTRA_MESSAGE = "com.richard.apps.shaketovibrate.MESSAGE";
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     // Instance variables
     private SensorManager senSensorManager;
@@ -58,6 +72,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private static final int UPDATE_INTERVAL = 100;
     private static final int VIBRATE_INTERVAL = 400;
     private static final String FILE_MESSAGES = "messages";
+
+    private String mCurrentPhotoPath;
 
     /*
      * This method will instantiate the savedInstance of the application if
@@ -85,7 +101,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         String message = readData(FILE_MESSAGES);
         edit_message.setText(message);
     }
-
 
     /*
      * Creates the action bar and adds the items to it.
@@ -159,8 +174,74 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     public void sendMessage(View view) {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         String message = edit_message.getText().toString();     // retrieve message
-        intent.putExtra(EDIT_MESSAGE, message);                 // store message in intent
+        intent.putExtra(EXTRA_MESSAGE, message);                 // store message in intent
         startActivity(intent);
+    }
+
+    /*
+     * Creates an intent that will take a picture through the camera if it can
+     */
+    public void dispatchTakePictureIntent(View view) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Check if the intent can be handled by a camera activity
+        if(takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;  // where the photo should go
+            // Create the file
+            try {
+                photoFile = createImageFile();
+            }
+            // Error occurred in creation of file
+            catch (IOException error) {
+                error.printStackTrace();
+            }
+
+            // As long as file exists
+            if(photoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                setResult(RESULT_OK, takePictureIntent);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    public File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  // prefix
+                ".jpg",         // suffix
+                storageDir);    // directory
+
+        // save file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        return image;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+
+          /*  Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ImageView photo_image = (ImageView) findViewById(R.id.photo_image);
+            photo_image.setImageBitmap(imageBitmap); */
+
+            if (data == null) {
+                // A known bug here!!! The image should have saved in fileUri
+                Toast.makeText(this, "Image saved successfully", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(this, "Image saved successfully in: " + data.getData(),
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+        else if(resultCode == RESULT_CANCELED) {
+            Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(this, "Callout for image capture failed!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /*
@@ -212,35 +293,40 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     /*
-     * Write string data to a file
+     * Writes string data to a file.
      *
      * @param  data      The string to write to file
      * @param  fileName  File to write data to
      */
     public void writeData(String data, String fileName) {
+        // Create output stream and write data to fileName
         try {
             FileOutputStream fos = openFileOutput(fileName, Context.MODE_PRIVATE);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
             osw.write(data);
             osw.flush();
             osw.close();
-        } catch(IOException error) {
+        }
+        // Print stack trace of the error to debug
+        catch(IOException error) {
             error.printStackTrace();
         }
     }
 
     /*
-     * Read string data from a file
+     * Reads string data from a file.
      *
      * @param  fileName  File to read data from
      */
     public String readData(String fileName) {
-        StringBuffer data = new StringBuffer("");   // store read data
+        StringBuffer data = new StringBuffer("");       // used to store read data
+        // Create input stream to read data from fileName
         try {
             FileInputStream fis = openFileInput(fileName);
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader buffReader = new BufferedReader(isr);
 
+            // read until nothing to read
             String readString = buffReader.readLine();
             while(readString != null) {
                 data.append(readString);
@@ -248,6 +334,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             }
             isr.close();
         }
+        // Print stack trace of error to debug
         catch(IOException error) {
             error.printStackTrace();
         }

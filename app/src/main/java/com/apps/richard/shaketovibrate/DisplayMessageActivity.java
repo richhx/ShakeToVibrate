@@ -43,11 +43,11 @@ public class DisplayMessageActivity extends ActionBarActivity {
             if(bundle == null)
                 message = null;
             else
-                message = bundle.getString(MainActivity.EDIT_MESSAGE);
+                message = bundle.getString(MainActivity.EXTRA_MESSAGE);
         }
         // otherwise use the savedInstanceState
         else {
-            message = (String)savedInstanceState.getSerializable(MainActivity.EDIT_MESSAGE);
+            message = (String)savedInstanceState.getSerializable(MainActivity.EXTRA_MESSAGE);
         }
 
         // Display the message on the text view (not editable)
