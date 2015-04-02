@@ -15,6 +15,7 @@ package com.apps.richard.shaketovibrate;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -28,11 +29,9 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -56,12 +55,16 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     // Key values
     public static final String EXTRA_MESSAGE = "com.richard.apps.shaketovibrate.MESSAGE";
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_LOAD = 2;
 
-    // Instance variables
+    // Device/System variables
     private SensorManager senSensorManager;
     private Sensor senAccelerometer;
     private Vibrator vibrator;
+
+    // Layout variables
     private EditText edit_message;
+    private ImageView photo_image;
 
     // Stores previous values to calculate delta in accelerometer
     private long lastUpdate = 0;
@@ -71,9 +74,13 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private static final int SHAKE_THRESHOLD = 1000;
     private static final int UPDATE_INTERVAL = 100;
     private static final int VIBRATE_INTERVAL = 400;
-    private static final String FILE_MESSAGES = "messages";
 
-    private String mCurrentPhotoPath;
+    // File names to store data
+    private static final String FILE_MESSAGES = "messages";
+    private static final String FILE_PHOTO = "photo";
+
+    // File path of photo image
+    private Uri photoUri = null;
 
     /*
      * This method will instantiate the savedInstance of the application if
@@ -96,10 +103,17 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         edit_message = (EditText) findViewById(R.id.edit_message);
+        photo_image = (ImageView) findViewById(R.id.photo_image);
 
         // Read string data and set edit_message text
         String message = readData(FILE_MESSAGES);
+        String photo = readData(FILE_PHOTO);
         edit_message.setText(message);
+
+        // Read image from gallery to display
+        Intent loadPictureIntent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(loadPictureIntent, REQUEST_IMAGE_LOAD);
     }
 
     /*
@@ -197,14 +211,18 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
             // As long as file exists
             if(photoFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                setResult(RESULT_OK, takePictureIntent);
+                photoUri = Uri.fromFile(photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
 
-    public File createImageFile() throws IOException {
+    /*
+     * Create an image file that will be stored in external storage
+     * in the gallery
+     */
+    private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
@@ -213,35 +231,55 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 imageFileName,  // prefix
                 ".jpg",         // suffix
                 storageDir);    // directory
-
-        // save file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
 
+    /*
+     * This method handles the result sent back from an activity.
+     * Specifically, it handles what happens with the image captured
+     * through the camera if it was captured or not. It creates a
+     * Toast message for the user.
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // FROM CAMERA REQUEST
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            File imageFile = new File(photoUri.getPath());
+            if(imageFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+                BitmapDrawable drawable = new BitmapDrawable(this.getResources(), bitmap);
+                photo_image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_image.setImageDrawable(drawable);
+            }
 
-          /*  Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            ImageView photo_image = (ImageView) findViewById(R.id.photo_image);
-            photo_image.setImageBitmap(imageBitmap); */
-
+            // Stored in default location
             if (data == null) {
-                // A known bug here!!! The image should have saved in fileUri
                 Toast.makeText(this, "Image saved successfully", Toast.LENGTH_LONG).show();
             }
+            // Data exists and prints where stored
             else {
                 Toast.makeText(this, "Image saved successfully in: " + data.getData(),
                         Toast.LENGTH_LONG).show();
             }
         }
+        // Result canceled
         else if(resultCode == RESULT_CANCELED) {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         }
-        else {
-            Toast.makeText(this, "Callout for image capture failed!", Toast.LENGTH_SHORT).show();
+
+        // FROM GALLERY LOAD REQUEST
+        if(requestCode == REQUEST_IMAGE_LOAD && resultCode == RESULT_OK && data != null) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn,
+                    null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            photo_image.setImageBitmap(BitmapFactory.decodeFile(picturePath));
         }
+
     }
 
     /*
